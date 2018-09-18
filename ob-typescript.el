@@ -1,9 +1,10 @@
 ;;; ob-typescript.el --- org-babel functions for typescript evaluation
 
-;; Copyright (C) 2015 KURASHIKI Satoru
+;; Copyright (C) 2015 KURASHIKI Satoru - 2018 Ryan Swart
 
 ;; Author: KURASHIKI Satoru
 ;; Keywords: literate programming, reproducible research, typescript
+;; Package-Version: 20150804.1230
 ;; Homepage: https://github.com/lurdan/ob-typescript
 ;; Version: 0.1
 ;; Package-Requires: ((emacs "24") (org "8.0"))
@@ -29,7 +30,7 @@
 ;; Exec typescript in org-babel code blocks.
 
 ;;; Requirements:
-;; You need to install node.js and typescript to use this extension.
+;; You need to install node.js, ts-node and typescript to use this extension.
 
 ;;; Code:
 (require 'ob)
@@ -38,6 +39,7 @@
 ;;(require 'ob-eval)
 
 ;;(require 'typescript)
+;;(require 'org-check-external-command)
 
 (add-to-list 'org-babel-tangle-lang-exts '("typescript" . "ts"))
 
@@ -73,17 +75,19 @@ called by `org-babel-execute-src-block'"
                    (concat " ; node " (org-babel-process-file-name tmp-out-file))
                    )))
     (with-temp-file tmp-src-file (insert body))
-    (let ((results (org-babel-eval (format "tsc %s -out %s %s %s"
+    (let ((results (org-babel-eval (format (concat (executable-find "tsc") "%s -out %s %s %s")
                                            cmdline
                                            (org-babel-process-file-name tmp-out-file)
                                            (org-babel-process-file-name tmp-src-file)
                                            jsexec)
                                    ""))
+
+          (tsnode (org-babel-eval (format (concat (executable-find "ts-node") " %s") (org-babel-process-file-name tmp-src-file)) ""))
           (jstrans (with-temp-buffer
                      (insert-file-contents tmp-out-file)
                      (buffer-substring-no-properties (point-min) (point-max))
                      )))
-      (if (eq jsexec "") jstrans results)
+      (if (eq jsexec "") jstrans tsnode)
       )))
 
 (provide 'ob-typescript)
