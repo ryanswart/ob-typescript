@@ -6,7 +6,7 @@ This org-mode babel extension enables you to execute typescript code blocks.
 ** Install
 
 *** Requirement
-You need to install node.js and typescript to use this extension.
+You need to install node.js, ts-node and typescript to use this extension.
 
 *** MELPA
 With setting up [[http://melpa.org][MELPA]], use =M-x package-install ob-typescript= .
